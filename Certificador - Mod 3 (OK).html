@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gerenciamento de Certificados</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --gray: #95a5a6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .notification-badge {
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 12px;
+        }
+        
+        .notification-icon {
+            position: relative;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+        
+        .main-content {
+            display: flex;
+            margin-top: 20px;
+            gap: 20px;
+        }
+        
+        .sidebar {
+            flex: 0 0 250px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .filters {
+            margin-bottom: 30px;
+        }
+        
+        .filters h3 {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--light);
+        }
+        
+        .filter-group {
+            margin-bottom: 15px;
+        }
+        
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .filter-group select, .filter-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e67e22;
+        }
+        
+        .content {
+            flex: 1;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light);
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-bar input {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 300px;
+        }
+        
+        .certificates-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .certificates-table th, .certificates-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .certificates-table th {
+            background-color: var(--light);
+            font-weight: 600;
+        }
+        
+        .certificates-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-no-prazo {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .status-a-vencer {
+            background-color: #fff8e1;
+            color: #f57c00;
+        }
+        
+        .status-vencido {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 5px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: var(--dark);
+        }
+        
+        .action-btn:hover {
+            color: var(--secondary);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light);
+        }
+        
+        .close {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .notification-panel {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 20px;
+            width: 350px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+        
+        .notification-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--light);
+            font-weight: 600;
+        }
+        
+        .notification-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .notification-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--light);
+        }
+        
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        
+        .notification-warning {
+            border-left: 4px solid var(--warning);
+        }
+        
+        .notification-danger {
+            border-left: 4px solid var(--danger);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        
+        .page-btn.active {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--gray);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--secondary);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: var(--gray);
+            margin-bottom: 15px;
+        }
+        
+        .certificate-info {
+            background-color: var(--light);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .certificate-info h3 {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            width: 150px;
+        }
+        
+        .info-value {
+            flex: 1;
+        }
+        
+        .notification-settings {
+            margin-top: 30px;
+        }
+        
+        .setting-group {
+            margin-bottom: 15px;
+        }
+        
+        .setting-group label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .service-worker-status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .status-active {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .status-inactive {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+        
+        @media (max-width: 992px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                flex: 0 0 auto;
+                margin-bottom: 20px;
+            }
+            
+            .search-bar input {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-certificate"></i> Gerenciador de Certificados
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div class="notification-icon" id="notificationIcon">
+                    <i class="fas fa-bell fa-lg"></i>
+                    <span class="notification-badge" id="notificationCount">0</span>
+                </div>
+                <button class="btn btn-primary" id="addCertificateBtn">
+                    <i class="fas fa-plus"></i> Adicionar Certificado
+                </button>
+            </div>
+        </header>
+        
+        <div class="notification-panel" id="notificationPanel">
+            <div class="notification-header">
+                Notificações de Vencimento
+            </div>
+            <div class="notification-list" id="notificationList">
+                <!-- Notifications will be added here dynamically -->
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="filters">
+                    <h3>Filtros</h3>
+                    <div class="filter-group">
+                        <label for="statusFilter">Status</label>
+                        <select id="statusFilter">
+                            <option value="all">Todos</option>
+                            <option value="no-prazo">No prazo</option>
+                            <option value="a-vencer">À vencer</option>
+                            <option value="vencido">Vencido</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="ufFilter">UF</label>
+                        <select id="ufFilter">
+                            <option value="all">Todos</option>
+                            <option value="SP">SP</option>
+                            <option value="RJ">RJ</option>
+                            <option value="MG">MG</option>
+                            <!-- Other states would be added here -->
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="searchFilter">CNPJ/CPF ou Nome</label>
+                        <input type="text" id="searchFilter" placeholder="Buscar...">
+                    </div>
+                    <button class="btn btn-primary" id="applyFilters" style="width: 100%;">Aplicar Filtros</button>
+                </div>
+                
+                <div class="notification-settings">
+                    <h3>Configurações de Notificação</h3>
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="browserNotifications" checked>
+                            Notificações do Navegador
+                        </label>
+                    </div>
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="systemNotifications">
+                            Notificações do Sistema (Push)
+                        </label>
+                    </div>
+                    <div class="setting-group">
+                        <label for="notificationDays">Dias para avisar antes do vencimento:</label>
+                        <select id="notificationDays">
+                            <option value="1">1 dia</option>
+                            <option value="3">3 dias</option>
+                            <option value="7" selected>7 dias</option>
+                            <option value="15">15 dias</option>
+                            <option value="30">30 dias</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-warning" id="testNotificationBtn" style="width: 100%; margin-top: 10px;">
+                        <i class="fas fa-bell"></i> Testar Notificação
+                    </button>
+                    <div id="serviceWorkerStatus" class="service-worker-status status-inactive">
+                        Service Worker: Não ativo
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content">
+                <div class="content-header">
+                    <h2>Certificados Cadastrados</h2>
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Buscar certificado...">
+                        <button class="btn btn-primary" id="searchBtn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <table class="certificates-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selectAll"></th>
+                            <th>Nome</th>
+                            <th>CNPJ/CPF</th>
+                            <th>UF</th>
+                            <th>Vencimento</th>
+                            <th>Status</th>
+                            <th>Consulta Noturna</th>
+                            <th>Manifestar Canceladas</th>
+                            <th>Tipo(s) de Arquivo(s)</th>
+                            <th>Config. de Saída</th>
+                            <th>Último Update</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="certificatesTableBody">
+                        <!-- Certificates will be added here dynamically -->
+                    </tbody>
+                </table>
+                
+                <div class="pagination">
+                    <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for adding certificates -->
+    <div class="modal" id="uploadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Adicionar Certificado</h3>
+                <span class="close" id="closeUploadModal">&times;</span>
+            </div>
+            <div class="upload-area" id="certificateUpload">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <p>Clique aqui ou arraste o arquivo do certificado</p>
+                <input type="file" id="certificateFile" accept=".pfx,.p12,.cer,.crt,.pem" style="display: none;">
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn" id="cancelUploadBtn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for certificate information and editing -->
+    <div class="modal" id="certificateInfoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Informações do Certificado</h3>
+                <span class="close" id="closeInfoModal">&times;</span>
+            </div>
+            <div class="certificate-info" id="certificateInfo">
+                <!-- Certificate info will be displayed here -->
+            </div>
+            <form id="certificateForm">
+                <div class="form-group">
+                    <label for="certificateName">Nome</label>
+                    <input type="text" id="certificateName" required>
+                </div>
+                <div class="form-group">
+                    <label for="certificateCnpjCpf">CNPJ/CPF</label>
+                    <input type="text" id="certificateCnpjCpf" required>
+                </div>
+                <div class="form-group">
+                    <label for="certificateUf">UF</label>
+                    <select id="certificateUf" required>
+                        <option value="">Selecione</option>
+                        <option value="AC">AC</option>
+                        <option value="AL">AL</option>
+                        <option value="AM">AM</option>
+                        <option value="AP">AP</option>
+                        <option value="BA">BA</option>
+                        <option value="CE">CE</option>
+                        <option value="DF">DF</option>
+                        <option value="ES">ES</option>
+                        <option value="GO">GO</option>
+                        <option value="MA">MA</option>
+                        <option value="MG">MG</option>
+                        <option value="MS">MS</option>
+                        <option value="MT">MT</option>
+                        <option value="PA">PA</option>
+                        <option value="PB">PB</option>
+                        <option value="PE">PE</option>
+                        <option value="PI">PI</option>
+                        <option value="PR">PR</option>
+                        <option value="RJ">RJ</option>
+                        <option value="RN">RN</option>
+                        <option value="RO">RO</option>
+                        <option value="RR">RR</option>
+                        <option value="RS">RS</option>
+                        <option value="SC">SC</option>
+                        <option value="SE">SE</option>
+                        <option value="SP">SP</option>
+                        <option value="TO">TO</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="certificateExpiry">Data de Vencimento</label>
+                    <input type="date" id="certificateExpiry" required>
+                </div>
+                <div class="form-group">
+                    <label for="certificatePassword">Senha do Certificado</label>
+                    <input type="password" id="certificatePassword">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" id="cancelInfoBtn">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal for delete confirmation -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Excluir Certificado</h3>
+                <span class="close" id="closeDeleteModal">&times;</span>
+            </div>
+            <p>Tem certeza que deseja excluir o certificado <strong id="deleteCertificateName"></strong>?</p>
+            <div class="form-actions">
+                <button type="button" class="btn" id="cancelDeleteBtn">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for demonstration
+        let certificatesData = JSON.parse(localStorage.getItem('certificates')) || [
+            {
+                id: 1,
+                name: "AR VARGAS CONSULTORIA EMPRESARIAL LTDA",
+                cnpjCpf: "06171078000123",
+                uf: "TO",
+                expiry: "2025-08-23",
+                status: "vencido",
+                nightQuery: "Desativada",
+                manifest: "Não",
+                fileTypes: "NFe/CTe",
+                outputConfig: "Não",
+                lastUpdate: "23/08/2024 19:51",
+                fileData: null
+            },
+            {
+                id: 2,
+                name: "ELO5 AGRONEGOCIOS LTDA",
+                cnpjCpf: "07203700000160",
+                uf: "TO",
+                expiry: "2026-06-23",
+                status: "no-prazo",
+                nightQuery: "Desativada",
+                manifest: "Não",
+                fileTypes: "NFe/CTe",
+                outputConfig: "Sim",
+                lastUpdate: "23/06/2025 20:16",
+                fileData: null
+            }
+        ];
+        
+        // Notifications data
+        let notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+        
+        // Current certificate being edited
+        let currentCertificate = null;
+        let currentFile = null;
+        
+        // Notification settings
+        let notificationSettings = JSON.parse(localStorage.getItem('notificationSettings')) || {
+            browserNotifications: true,
+            systemNotifications: false,
+            notificationDays: 7
+        };
+        
+        // Service Worker registration
+        let serviceWorkerRegistration = null;
+        
+        // DOM Elements
+        const certificatesTableBody = document.getElementById('certificatesTableBody');
+        const notificationList = document.getElementById('notificationList');
+        const notificationCount = document.getElementById('notificationCount');
+        const notificationIcon = document.getElementById('notificationIcon');
+        const notificationPanel = document.getElementById('notificationPanel');
+        const addCertificateBtn = document.getElementById('addCertificateBtn');
+        const uploadModal = document.getElementById('uploadModal');
+        const closeUploadModal = document.getElementById('closeUploadModal');
+        const cancelUploadBtn = document.getElementById('cancelUploadBtn');
+        const certificateUpload = document.getElementById('certificateUpload');
+        const certificateFile = document.getElementById('certificateFile');
+        const certificateInfoModal = document.getElementById('certificateInfoModal');
+        const closeInfoModal = document.getElementById('closeInfoModal');
+        const cancelInfoBtn = document.getElementById('cancelInfoBtn');
+        const certificateForm = document.getElementById('certificateForm');
+        const certificateInfo = document.getElementById('certificateInfo');
+        const deleteModal = document.getElementById('deleteModal');
+        const closeDeleteModal = document.getElementById('closeDeleteModal');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const deleteCertificateName = document.getElementById('deleteCertificateName');
+        const applyFilters = document.getElementById('applyFilters');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const statusFilter = document.getElementById('statusFilter');
+        const ufFilter = document.getElementById('ufFilter');
+        const searchFilter = document.getElementById('searchFilter');
+        const selectAll = document.getElementById('selectAll');
+        const browserNotifications = document.getElementById('browserNotifications');
+        const systemNotifications = document.getElementById('systemNotifications');
+        const notificationDays = document.getElementById('notificationDays');
+        const testNotificationBtn = document.getElementById('testNotificationBtn');
+        const serviceWorkerStatus = document.getElementById('serviceWorkerStatus');
+        
+        // Initialize the page
+        function init() {
+            renderCertificates();
+            checkExpiryDates();
+            renderNotifications();
+            loadNotificationSettings();
+            initServiceWorker();
+            attachEventListeners();
+            startNotificationChecker();
+        }
+        
+        // Render certificates table
+        function renderCertificates() {
+            certificatesTableBody.innerHTML = '';
+            
+            if (certificatesData.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="12" style="text-align: center; padding: 20px;">Nenhum certificado cadastrado</td>`;
+                certificatesTableBody.appendChild(row);
+                return;
+            }
+            
+            certificatesData.forEach(certificate => {
+                const row = document.createElement('tr');
+                
+                // Determine status badge class
+                let statusClass = '';
+                let statusText = '';
+                
+                if (certificate.status === 'no-prazo') {
+                    statusClass = 'status-no-prazo';
+                    statusText = 'No Prazo';
+                } else if (certificate.status === 'a-vencer') {
+                    statusClass = 'status-a-vencer';
+                    statusText = 'À Vencer';
+                } else {
+                    statusClass = 'status-vencido';
+                    statusText = 'Vencido';
+                }
+                
+                row.innerHTML = `
+                    <td><input type="checkbox" class="certificate-checkbox" data-id="${certificate.id}"></td>
+                    <td>${certificate.name}</td>
+                    <td>${certificate.cnpjCpf}</td>
+                    <td>${certificate.uf}</td>
+                    <td>${formatDate(certificate.expiry)}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>${certificate.nightQuery}</td>
+                    <td>${certificate.manifest}</td>
+                    <td>${certificate.fileTypes}</td>
+                    <td>${certificate.outputConfig}</td>
+                    <td>${certificate.lastUpdate}</td>
+                    <td class="actions">
+                        <button class="action-btn" title="Editar" onclick="editCertificate(${certificate.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn" title="Excluir" onclick="showDeleteModal(${certificate.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="action-btn" title="Baixar" onclick="downloadCertificate(${certificate.id})">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </td>
+                `;
+                
+                certificatesTableBody.appendChild(row);
+            });
+            
+            // Update select all checkbox
+            selectAll.checked = false;
+        }
+        
+        // Check certificate expiry dates and generate notifications
+        function checkExpiryDates() {
+            notifications = [];
+            const today = new Date();
+            const daysToNotify = parseInt(notificationSettings.notificationDays) || 7;
+            
+            certificatesData.forEach(certificate => {
+                const expiryDate = new Date(certificate.expiry);
+                const daysUntilExpiry = Math.floor((expiryDate - today) / (1000 * 60 * 60 * 24));
+                
+                if (daysUntilExpiry < 0) {
+                    // Certificate expired
+                    notifications.push({
+                        id: certificate.id,
+                        message: `Certificado ${certificate.name} está vencido`,
+                        type: "danger",
+                        date: formatDate(today.toISOString().split('T')[0])
+                    });
+                    
+                    // Update status if needed
+                    if (certificate.status !== 'vencido') {
+                        certificate.status = 'vencido';
+                    }
+                    
+                    // Send system notification
+                    if (notificationSettings.browserNotifications) {
+                        sendBrowserNotification('Certificado Vencido', `O certificado ${certificate.name} está vencido!`);
+                    }
+                } else if (daysUntilExpiry <= daysToNotify) {
+                    // Certificate expiring soon
+                    notifications.push({
+                        id: certificate.id,
+                        message: `Certificado ${certificate.name} vence em ${daysUntilExpiry} dias`,
+                        type: "warning",
+                        date: formatDate(today.toISOString().split('T')[0])
+                    });
+                    
+                    // Update status if needed
+                    if (certificate.status !== 'a-vencer') {
+                        certificate.status = 'a-vencer';
+                    }
+                    
+                    // Send system notification
+                    if (notificationSettings.browserNotifications && daysUntilExpiry <= 7) {
+                        sendBrowserNotification('Certificado Próximo do Vencimento', `O certificado ${certificate.name} vence em ${daysUntilExpiry} dias!`);
+                    }
+                } else {
+                    // Certificate is valid
+                    if (certificate.status !== 'no-prazo') {
+                        certificate.status = 'no-prazo';
+                    }
+                }
+            });
+            
+            // Save data to localStorage
+            localStorage.setItem('certificates', JSON.stringify(certificatesData));
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+            
+            // Update notifications
+            renderNotifications();
+        }
+        
+        // Render notifications
+        function renderNotifications() {
+            notificationList.innerHTML = '';
+            notificationCount.textContent = notifications.length;
+            
+            if (notifications.length === 0) {
+                const item = document.createElement('div');
+                item.className = 'notification-item';
+                item.innerHTML = `<p>Nenhuma notificação</p>`;
+                notificationList.appendChild(item);
+                return;
+            }
+            
+            notifications.forEach(notification => {
+                const item = document.createElement('div');
+                item.className = `notification-item notification-${notification.type}`;
+                item.innerHTML = `
+                    <p>${notification.message}</p>
+                    <small>${notification.date}</small>
+                `;
+                notificationList.appendChild(item);
+            });
+        }
+        
+        // Send browser notification
+        function sendBrowserNotification(title, message) {
+            // Check if the browser supports notifications
+            if (!("Notification" in window)) {
+                console.log("Este navegador não suporta notificações");
+                return;
+            }
+            
+            // Check if notification permissions are already granted
+            if (Notification.permission === "granted") {
+                // Create notification
+                new Notification(title, {
+                    body: message,
+                    icon: '/favicon.ico',
+                    tag: 'certificate-notification'
+                });
+            } else if (Notification.permission !== "denied") {
+                // Request permission from user
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        new Notification(title, {
+                            body: message,
+                            icon: '/favicon.ico',
+                            tag: 'certificate-notification'
+                        });
+                    }
+                });
+            }
+        }
+        
+        // Initialize Service Worker for push notifications
+        function initServiceWorker() {
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        serviceWorkerRegistration = registration;
+                        serviceWorkerStatus.textContent = 'Service Worker: Ativo';
+                        serviceWorkerStatus.className = 'service-worker-status status-active';
+                        console.log('Service Worker registrado com sucesso:', registration);
+                        
+                        // Check notification permission
+                        if (Notification.permission === 'default') {
+                            Notification.requestPermission();
+                        }
+                    })
+                    .catch(error => {
+                        serviceWorkerStatus.textContent = 'Service Worker: Falha no registro';
+                        serviceWorkerStatus.className = 'service-worker-status status-inactive';
+                        console.log('Falha ao registrar Service Worker:', error);
+                    });
+            } else {
+                serviceWorkerStatus.textContent = 'Service Worker: Não suportado';
+                serviceWorkerStatus.className = 'service-worker-status status-inactive';
+            }
+        }
+        
+        // Load notification settings
+        function loadNotificationSettings() {
+            browserNotifications.checked = notificationSettings.browserNotifications;
+            systemNotifications.checked = notificationSettings.systemNotifications;
+            notificationDays.value = notificationSettings.notificationDays;
+        }
+        
+        // Save notification settings
+        function saveNotificationSettings() {
+            notificationSettings.browserNotifications = browserNotifications.checked;
+            notificationSettings.systemNotifications = systemNotifications.checked;
+            notificationSettings.notificationDays = notificationDays.value;
+            
+            localStorage.setItem('notificationSettings', JSON.stringify(notificationSettings));
+            
+            // If system notifications are enabled, request permission
+            if (systemNotifications.checked && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        }
+        
+        // Format date to dd/mm/yyyy
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+        
+        // Parse date from dd/mm/yyyy to yyyy-mm-dd
+        function parseDateToInput(dateString) {
+            const parts = dateString.split('/');
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+        
+        // Show certificate information modal
+        function showCertificateInfo(certificateData, file) {
+            currentCertificate = certificateData;
+            currentFile = file;
+            
+            // Display certificate information
+            certificateInfo.innerHTML = `
+                <h3>Informações Lidas do Certificado</h3>
+                <div class="info-row">
+                    <div class="info-label">Nome:</div>
+                    <div class="info-value">${certificateData.name || 'Não identificado'}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">CNPJ/CPF:</div>
+                    <div class="info-value">${certificateData.cnpjCpf || 'Não identificado'}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Emissor:</div>
+                    <div class="info-value">Autoridade Certificadora Raiz Brasileira</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Validade:</div>
+                    <div class="info-value">De ${formatDate('2023-01-01')} até ${formatDate(certificateData.expiry)}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Tipo:</div>
+                    <div class="info-value">A1 (Arquivo)</div>
+                </div>
+            `;
+            
+            // Fill form with certificate data
+            document.getElementById('certificateName').value = certificateData.name || '';
+            document.getElementById('certificateCnpjCpf').value = certificateData.cnpjCpf || '';
+            document.getElementById('certificateUf').value = certificateData.uf || '';
+            document.getElementById('certificateExpiry').value = certificateData.expiry || '';
+            
+            // Show modal
+            certificateInfoModal.style.display = 'flex';
+        }
+        
+        // Edit certificate
+        function editCertificate(id) {
+            const certificate = certificatesData.find(c => c.id === id);
+            if (certificate) {
+                currentCertificate = certificate;
+                
+                // Display certificate information
+                certificateInfo.innerHTML = `
+                    <h3>Informações do Certificado</h3>
+                    <div class="info-row">
+                        <div class="info-label">Nome:</div>
+                        <div class="info-value">${certificate.name}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">CNPJ/CPF:</div>
+                        <div class="info-value">${certificate.cnpjCpf}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Emissor:</div>
+                        <div class="info-value">Autoridade Certificadora Raiz Brasileira</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Validade:</div>
+                        <div class="info-value">De ${formatDate('2023-01-01')} até ${formatDate(certificate.expiry)}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Tipo:</div>
+                        <div class="info-value">A1 (Arquivo)</div>
+                    </div>
+                `;
+                
+                // Fill form with certificate data
+                document.getElementById('certificateName').value = certificate.name;
+                document.getElementById('certificateCnpjCpf').value = certificate.cnpjCpf;
+                document.getElementById('certificateUf').value = certificate.uf;
+                document.getElementById('certificateExpiry').value = certificate.expiry;
+                
+                // Show modal
+                certificateInfoModal.style.display = 'flex';
+            }
+        }
+        
+        // Show delete confirmation modal
+        function showDeleteModal(id) {
+            const certificate = certificatesData.find(c => c.id === id);
+            if (certificate) {
+                currentCertificate = certificate;
+                deleteCertificateName.textContent = certificate.name;
+                deleteModal.style.display = 'flex';
+            }
+        }
+        
+        // Delete certificate
+        function deleteCertificate() {
+            if (currentCertificate) {
+                certificatesData = certificatesData.filter(c => c.id !== currentCertificate.id);
+                localStorage.setItem('certificates', JSON.stringify(certificatesData));
+                renderCertificates();
+                checkExpiryDates();
+                deleteModal.style.display = 'none';
+            }
+        }
+        
+        // Download certificate
+        function downloadCertificate(id) {
+            const certificate = certificatesData.find(c => c.id === id);
+            if (certificate && certificate.fileData) {
+                // Create a download link
+                const link = document.createElement('a');
+                link.href = certificate.fileData;
+                link.download = `certificate-${certificate.name}.p12`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                alert('Arquivo do certificado não disponível para download.');
+            }
+        }
+        
+        // Simulate certificate file reading
+        function readCertificateFile(file) {
+            return new Promise((resolve) => {
+                // Simulate file reading delay
+                setTimeout(() => {
+                    // Extract filename without extension
+                    const fileName = file.name.replace(/\.[^/.]+$/, "");
+                    
+                    // Simulate extracting data from certificate
+                    const certificateData = {
+                        name: fileName,
+                        cnpjCpf: generateRandomCnpj(),
+                        uf: getRandomUF(),
+                        expiry: getRandomFutureDate(),
+                        status: "no-prazo",
+                        nightQuery: "Desativada",
+                        manifest: "Não",
+                        fileTypes: "NFe/CTe",
+                        outputConfig: "Não",
+                        lastUpdate: new Date().toLocaleString('pt-BR'),
+                        fileData: URL.createObjectURL(file)
+                    };
+                    
+                    resolve(certificateData);
+                }, 1000);
+            });
+        }
+        
+        // Generate random CNPJ for simulation
+        function generateRandomCnpj() {
+            let cnpj = '';
+            for (let i = 0; i < 14; i++) {
+                cnpj += Math.floor(Math.random() * 10);
+            }
+            return cnpj;
+        }
+        
+        // Get random UF for simulation
+        function getRandomUF() {
+            const ufs = ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'];
+            return ufs[Math.floor(Math.random() * ufs.length)];
+        }
+        
+        // Get random future date for simulation
+        function getRandomFutureDate() {
+            const today = new Date();
+            const futureDate = new Date();
+            futureDate.setDate(today.getDate() + Math.floor(Math.random() * 365) + 30);
+            return futureDate.toISOString().split('T')[0];
+        }
+        
+        // Start notification checker (runs every hour)
+        function startNotificationChecker() {
+            setInterval(() => {
+                checkExpiryDates();
+            }, 60 * 60 * 1000); // 1 hour
+        }
+        
+        // Attach event listeners
+        function attachEventListeners() {
+            // Notification icon click
+            notificationIcon.addEventListener('click', () => {
+                notificationPanel.style.display = notificationPanel.style.display === 'block' ? 'none' : 'block';
+            });
+            
+            // Add certificate button click
+            addCertificateBtn.addEventListener('click', () => {
+                uploadModal.style.display = 'flex';
+            });
+            
+            // Close upload modal
+            closeUploadModal.addEventListener('click', () => {
+                uploadModal.style.display = 'none';
+            });
+            
+            // Cancel upload button click
+            cancelUploadBtn.addEventListener('click', () => {
+                uploadModal.style.display = 'none';
+            });
+            
+            // Certificate upload area click
+            certificateUpload.addEventListener('click', () => {
+                certificateFile.click();
+            });
+            
+            // Certificate file selection
+            certificateFile.addEventListener('change', async (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    
+                    // Show loading state
+                    certificateUpload.innerHTML = `
+                        <div class="upload-icon">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                        <p>Lendo certificado...</p>
+                    `;
+                    
+                    try {
+                        // Read certificate file (simulated)
+                        const certificateData = await readCertificateFile(file);
+                        
+                        // Close upload modal
+                        uploadModal.style.display = 'none';
+                        
+                        // Show certificate information modal
+                        showCertificateInfo(certificateData, file);
+                    } catch (error) {
+                        alert('Erro ao ler o certificado: ' + error.message);
+                        certificateUpload.innerHTML = `
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <p>Clique aqui ou arraste o arquivo do certificado</p>
+                        `;
+                    }
+                }
+            });
+            
+            // Close info modal
+            closeInfoModal.addEventListener('click', () => {
+                certificateInfoModal.style.display = 'none';
+            });
+            
+            // Cancel info button click
+            cancelInfoBtn.addEventListener('click', () => {
+                certificateInfoModal.style.display = 'none';
+            });
+            
+            // Certificate form submission
+            certificateForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                // Get form values
+                const name = document.getElementById('certificateName').value;
+                const cnpjCpf = document.getElementById('certificateCnpjCpf').value;
+                const uf = document.getElementById('certificateUf').value;
+                const expiry = document.getElementById('certificateExpiry').value;
+                
+                if (currentCertificate && currentCertificate.id) {
+                    // Update existing certificate
+                    const index = certificatesData.findIndex(c => c.id === currentCertificate.id);
+                    if (index !== -1) {
+                        certificatesData[index] = {
+                            ...certificatesData[index],
+                            name,
+                            cnpjCpf,
+                            uf,
+                            expiry
+                        };
+                    }
+                } else {
+                    // Add new certificate
+                    const newId = certificatesData.length > 0 ? Math.max(...certificatesData.map(c => c.id)) + 1 : 1;
+                    
+                    certificatesData.push({
+                        id: newId,
+                        name,
+                        cnpjCpf,
+                        uf,
+                        expiry,
+                        status: "no-prazo",
+                        nightQuery: "Desativada",
+                        manifest: "Não",
+                        fileTypes: "NFe/CTe",
+                        outputConfig: "Não",
+                        lastUpdate: new Date().toLocaleString('pt-BR'),
+                        fileData: currentFile ? URL.createObjectURL(currentFile) : null
+                    });
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('certificates', JSON.stringify(certificatesData));
+                
+                // Update UI
+                renderCertificates();
+                checkExpiryDates();
+                
+                // Close modal
+                certificateInfoModal.style.display = 'none';
+                
+                // Show success message
+                alert('Certificado salvo com sucesso!');
+            });
+            
+            // Close delete modal
+            closeDeleteModal.addEventListener('click', () => {
+                deleteModal.style.display = 'none';
+            });
+            
+            // Cancel delete button click
+            cancelDeleteBtn.addEventListener('click', () => {
+                deleteModal.style.display = 'none';
+            });
+            
+            // Confirm delete button click
+            confirmDeleteBtn.addEventListener('click', deleteCertificate);
+            
+            // Apply filters button click
+            applyFilters.addEventListener('click', filterCertificates);
+            
+            // Search button click
+            searchBtn.addEventListener('click', filterCertificates);
+            
+            // Notification settings changes
+            browserNotifications.addEventListener('change', saveNotificationSettings);
+            systemNotifications.addEventListener('change', saveNotificationSettings);
+            notificationDays.addEventListener('change', saveNotificationSettings);
+            
+            // Test notification button
+            testNotificationBtn.addEventListener('click', () => {
+                if (notificationSettings.browserNotifications) {
+                    sendBrowserNotification('Teste de Notificação', 'Esta é uma notificação de teste do sistema de certificados!');
+                } else {
+                    alert('Ative as notificações do navegador primeiro.');
+                }
+            });
+            
+            // Close notification panel when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!notificationIcon.contains(e.target) && !notificationPanel.contains(e.target)) {
+                    notificationPanel.style.display = 'none';
+                }
+            });
+            
+            // Select all certificates
+            selectAll.addEventListener('change', (e) => {
+                const checkboxes = document.querySelectorAll('.certificate-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = e.target.checked;
+                });
+            });
+        }
+        
+        // Filter certificates based on selected filters
+        function filterCertificates() {
+            const statusValue = statusFilter.value;
+            const ufValue = ufFilter.value;
+            const searchValue = searchFilter.value.toLowerCase();
+            const searchInputValue = searchInput.value.toLowerCase();
+            
+            const filteredCertificates = certificatesData.filter(certificate => {
+                // Status filter
+                if (statusValue !== 'all' && certificate.status !== statusValue) {
+                    return false;
+                }
+                
+                // UF filter
+                if (ufValue !== 'all' && certificate.uf !== ufValue) {
+                    return false;
+                }
+                
+                // Search filter
+                if (searchValue && !certificate.name.toLowerCase().includes(searchValue) && 
+                    !certificate.cnpjCpf.includes(searchValue)) {
+                    return false;
+                }
+                
+                // Search input
+                if (searchInputValue && !certificate.name.toLowerCase().includes(searchInputValue) && 
+                    !certificate.cnpjCpf.includes(searchInputValue)) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            renderFilteredCertificates(filteredCertificates);
+        }
+        
+        // Render filtered certificates
+        function renderFilteredCertificates(certificates) {
+            certificatesTableBody.innerHTML = '';
+            
+            if (certificates.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="12" style="text-align: center; padding: 20px;">Nenhum certificado encontrado</td>`;
+                certificatesTableBody.appendChild(row);
+                return;
+            }
+            
+            certificates.forEach(certificate => {
+                const row = document.createElement('tr');
+                
+                // Determine status badge class
+                let statusClass = '';
+                let statusText = '';
+                
+                if (certificate.status === 'no-prazo') {
+                    statusClass = 'status-no-prazo';
+                    statusText = 'No Prazo';
+                } else if (certificate.status === 'a-vencer') {
+                    statusClass = 'status-a-vencer';
+                    statusText = 'À Vencer';
+                } else {
+                    statusClass = 'status-vencido';
+                    statusText = 'Vencido';
+                }
+                
+                row.innerHTML = `
+                    <td><input type="checkbox" class="certificate-checkbox" data-id="${certificate.id}"></td>
+                    <td>${certificate.name}</td>
+                    <td>${certificate.cnpjCpf}</td>
+                    <td>${certificate.uf}</td>
+                    <td>${formatDate(certificate.expiry)}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>${certificate.nightQuery}</td>
+                    <td>${certificate.manifest}</td>
+                    <td>${certificate.fileTypes}</td>
+                    <td>${certificate.outputConfig}</td>
+                    <td>${certificate.lastUpdate}</td>
+                    <td class="actions">
+                        <button class="action-btn" title="Editar" onclick="editCertificate(${certificate.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn" title="Excluir" onclick="showDeleteModal(${certificate.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="action-btn" title="Baixar" onclick="downloadCertificate(${certificate.id})">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </td>
+                `;
+                
+                certificatesTableBody.appendChild(row);
+            });
+        }
+        
+        // Initialize the application
+        init();
+    </script>
+
+    <script>
+        // Service Worker code (inlined for demonstration)
+        if ('serviceWorker' in navigator) {
+            // In a real implementation, this would be in a separate sw.js file
+            const swCode = `
+                self.addEventListener('install', event => {
+                    console.log('Service Worker instalado');
+                    self.skipWaiting();
+                });
+                
+                self.addEventListener('activate', event => {
+                    console.log('Service Worker ativado');
+                });
+                
+                self.addEventListener('push', event => {
+                    const options = {
+                        body: event.data.text(),
+                        icon: '/favicon.ico',
+                        badge: '/favicon.ico'
+                    };
+                    
+                    event.waitUntil(
+                        self.registration.showNotification('Sistema de Certificados', options)
+                    );
+                });
+            `;
+            
+            // Create a Blob from the code
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swURL = URL.createObjectURL(blob);
+            
+            // Register the Service Worker
+            navigator.serviceWorker.register(swURL)
+                .then(registration => {
+                    console.log('Service Worker registrado com sucesso:', registration);
+                })
+                .catch(error => {
+                    console.log('Falha ao registrar Service Worker:', error);
+                });
+        }
+    </script>
+</body>
+</html>
+
+// Sistema desenvolvido por Davi Vieira
