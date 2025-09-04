@@ -1,9 +1,18 @@
+<script>
+    // Verifica se o usuário está autenticado
+    const isAuthenticated = localStorage.getItem('isAuthenticated');
+    if (isAuthenticated !== 'true') {
+        // Se não estiver, redireciona para a página de login
+        window.location.href = 'login.html'; 
+    }
+</script>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Gerenciador de Certificados (Atualizado)</title>
+<title>Gerenciador de Certificados</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 <!-- SheetJS for Excel export -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -722,3 +731,4 @@ window.filterCertificates = ()=>{ currentPage = 1; renderCurrentPage(); };
 </script>
 </body>
 </html>
+
