@@ -3,7 +3,7 @@
     const isAuthenticated = localStorage.getItem('isAuthenticated');
     if (isAuthenticated !== 'true') {
         // Se não estiver, redireciona para a página de login
-        window.location.href = 'login.html'; 
+        window.location.href = `${window.location.origin}${window.location.pathname.replace('sistema.html', '')}login.html`;
     }
 </script>
 
@@ -731,4 +731,5 @@ window.filterCertificates = ()=>{ currentPage = 1; renderCurrentPage(); };
 </script>
 </body>
 </html>
+
 
