@@ -148,9 +148,11 @@
     <script>
         // Conectar ao Supabase
         const supabaseUrl = 'https://tjzfulkbcecoqgoqliit.supabase.co';
-        const supabaseKey = 'SUA_ANON_KEY_AQUI';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqemZ1bGtiY2Vjb3Fnb3FsaWl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5OTAzMTYsImV4cCI6MjA3MjU2NjMxNn0.SUFYSar2PCmqwMjJapgozFbGW4Wjg9KpqQOQEF5eN_w';
         // const { createClient } do import, é a função que você precisa usar para criar o cliente.
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        const { createClient } = supabase;
+        const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
 
         // Login
         async function login() {
@@ -168,7 +170,7 @@
                 alert('Erro no login: ' + error.message);
             } else {
                 alert('Login realizado com sucesso!');
-                window.location.href = `${window.location.origin}${window.location.pathname.replace('login.html', '')}sistema.html`;
+                window.location.href = "sistema.html";
             }
         }
 
