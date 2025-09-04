@@ -168,7 +168,7 @@
                 alert('Erro no login: ' + error.message);
             } else {
                 alert('Login realizado com sucesso!');
-                window.location.href = 'login.html';
+                window.location.href = `${window.location.origin}${window.location.pathname.replace('login.html', '')}sistema.html`;
             }
         }
 
